@@ -96,7 +96,7 @@ class Model(object):
     def train_forward_pass(self, x, c, xn, cn, dropout_p, init = False):
         kwargs = {"init": init, "dropout_p": dropout_p}
         # encoder
-        hs = self.enc_up_pass(xn, cn, **kwargs)
+        hs = self.enc_up_pass(xn, cn, **kwargs) # cn is actually not used, so we just encode xn
         es, qs, zs_posterior = self.enc_down_pass(hs, **kwargs)
         # decoder
         gs = self.dec_up_pass(c, **kwargs)
