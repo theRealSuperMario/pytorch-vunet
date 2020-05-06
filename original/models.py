@@ -8,21 +8,31 @@ def model_arg_scope(**kwargs):
     operations."""
     counters = {}
     return arg_scope(
-            [nn.conv2d, nn.deconv2d, nn.residual_block, nn.dense, nn.activate],
-            counters = counters, **kwargs)
+        [nn.conv2d, nn.deconv2d, nn.residual_block, nn.dense, nn.activate],
+        counters=counters,
+        **kwargs
+    )
 
 
 def make_model(name, template, **kwargs):
     """Create model with fixed kwargs."""
-    run = lambda *args, **kw: template(*args, **dict((k, v) for kws in (kw, kwargs) for k, v in kws.items()))
-    return tf.make_template(name, run, unique_name_ = name)
+    run = lambda *args, **kw: template(
+        *args, **dict((k, v) for kws in (kw, kwargs) for k, v in kws.items())
+    )
+    return tf.make_template(name, run, unique_name_=name)
 
 
 def dec_up(
-        c, init = False, dropout_p = 0.5,
-        n_scales = 1, n_residual_blocks = 2, activation = "elu", n_filters = 64, max_filters = 128):
-    with model_arg_scope(
-            init = init, dropout_p = dropout_p, activation = activation):
+    c,
+    init=False,
+    dropout_p=0.5,
+    n_scales=1,
+    n_residual_blocks=2,
+    activation="elu",
+    n_filters=64,
+    max_filters=128,
+):
+    with model_arg_scope(init=init, dropout_p=dropout_p, activation=activation):
         # outputs
         hs = []
         # prepare input
@@ -34,24 +44,30 @@ def dec_up(
                 hs.append(h)
             # prepare input to next level
             if l + 1 < n_scales:
-                n_filters = min(2*n_filters, max_filters)
+                n_filters = min(2 * n_filters, max_filters)
                 h = nn.downsample(h, n_filters)
         return hs
 
 
 def dec_down(
-        gs, zs_posterior, training, init = False, dropout_p = 0.5,
-        n_scales = 1, n_residual_blocks = 2, activation = "elu",
-        n_latent_scales = 2):
+    gs,
+    zs_posterior,
+    training,
+    init=False,
+    dropout_p=0.5,
+    n_scales=1,
+    n_residual_blocks=2,
+    activation="elu",
+    n_latent_scales=2,
+):
     assert n_residual_blocks % 2 == 0
     gs = list(gs)
     zs_posterior = list(zs_posterior)
-    with model_arg_scope(
-            init = init, dropout_p = dropout_p, activation = activation):
+    with model_arg_scope(init=init, dropout_p=dropout_p, activation=activation):
         # outputs
-        hs = [] # hidden units
-        ps = [] # priors
-        zs = [] # prior samples
+        hs = []  # hidden units
+        ps = []  # priors
+        zs = []  # prior samples
         # prepare input
         n_filters = gs[-1].shape.as_list()[-1]
         h = nn.nin(gs[-1], n_filters)
@@ -79,7 +95,9 @@ def dec_down(
                     z_groups = []
                     p_features = tf.space_to_depth(nn.residual_block(h), 2)
                     for i in range(4):
-                        p_group = latent_parameters(p_features, num_filters = n_h_channels)
+                        p_group = latent_parameters(
+                            p_features, num_filters=n_h_channels
+                        )
                         p_groups.append(p_group)
                         z_group = latent_sample(p_group)
                         z_groups.append(z_group)
@@ -108,7 +126,7 @@ def dec_down(
                     z = z_prior
                 for i in range(n_residual_blocks // 2):
                     n_h_channels = h.shape.as_list()[-1]
-                    h = tf.concat([h, z], axis = -1)
+                    h = tf.concat([h, z], axis=-1)
                     h = nn.nin(h, n_h_channels)
                     h = nn.residual_block(h, gs.pop())
                     hs.append(h)
@@ -129,14 +147,22 @@ def dec_down(
 
 
 def enc_up(
-        x, c, init = False, dropout_p = 0.5,
-        n_scales = 1, n_residual_blocks = 2, activation = "elu", n_filters = 64, max_filters = 128):
-    with model_arg_scope(
-            init = init, dropout_p = dropout_p, activation = activation):
+    x,
+    c,
+    init=False,
+    dropout_p=0.5,
+    n_scales=1,
+    n_residual_blocks=2,
+    activation="elu",
+    n_filters=64,
+    max_filters=128,
+):
+    with model_arg_scope(init=init, dropout_p=dropout_p, activation=activation):
+        """c is actually not used"""
         # outputs
         hs = []
         # prepare input
-        #xc = tf.concat([x,c], axis = -1)
+        # xc = tf.concat([x,c], axis = -1)
         xc = x
         h = nn.nin(xc, n_filters)
         for l in range(n_scales):
@@ -146,23 +172,27 @@ def enc_up(
                 hs.append(h)
             # prepare input to next level
             if l + 1 < n_scales:
-                n_filters = min(2*n_filters, max_filters)
+                n_filters = min(2 * n_filters, max_filters)
                 h = nn.downsample(h, n_filters)
         return hs
 
 
 def enc_down(
-        gs, init = False, dropout_p = 0.5,
-        n_scales = 1, n_residual_blocks = 2, activation = "elu",
-        n_latent_scales = 2):
+    gs,
+    init=False,
+    dropout_p=0.5,
+    n_scales=1,
+    n_residual_blocks=2,
+    activation="elu",
+    n_latent_scales=2,
+):
     assert n_residual_blocks % 2 == 0
     gs = list(gs)
-    with model_arg_scope(
-            init = init, dropout_p = dropout_p, activation = activation):
+    with model_arg_scope(init=init, dropout_p=dropout_p, activation=activation):
         # outputs
-        hs = [] # hidden units
-        qs = [] # posteriors
-        zs = [] # samples from posterior
+        hs = []  # hidden units
+        qs = []  # posteriors
+        zs = []  # samples from posterior
         # prepare input
         n_filters = gs[-1].shape.as_list()[-1]
         h = nn.nin(gs[-1], n_filters)
@@ -181,7 +211,7 @@ def enc_down(
                 zs.append(z)
                 ## sample feedback
                 for i in range(n_residual_blocks // 2):
-                    gz = tf.concat([gs.pop(), z], axis = -1)
+                    gz = tf.concat([gs.pop(), z], axis=-1)
                     h = nn.residual_block(h, gz)
                     hs.append(h)
             else:
@@ -194,15 +224,13 @@ def enc_down(
         return hs, qs, zs
 
 
-def dec_parameters(
-        h, init = False, **kwargs):
-    with model_arg_scope(init = init):
+def dec_parameters(h, init=False, **kwargs):
+    with model_arg_scope(init=init):
         num_filters = 3
         return nn.conv2d(h, num_filters)
 
 
-def latent_parameters(
-        h, init = False, **kwargs):
+def latent_parameters(h, init=False, **kwargs):
     num_filters = kwargs.get("num_filters", h.shape.as_list()[-1])
     return nn.conv2d(h, num_filters)
 
@@ -210,7 +238,7 @@ def latent_parameters(
 def latent_sample(p):
     mean = p
     stddev = 1.0
-    eps = tf.random_normal(mean.shape, mean = 0.0, stddev = 1.0)
+    eps = tf.random_normal(mean.shape, mean=0.0, stddev=1.0)
     return mean + stddev * eps
 
 
@@ -219,6 +247,6 @@ def latent_kl(q, p):
     mean2 = p
 
     kl = 0.5 * tf.square(mean2 - mean1)
-    kl = tf.reduce_sum(kl, axis = [1,2,3])
+    kl = tf.reduce_sum(kl, axis=[1, 2, 3])
     kl = tf.reduce_mean(kl)
     return kl

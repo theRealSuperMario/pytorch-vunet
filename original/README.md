@@ -1,3 +1,15 @@
+# Pytorch reimplementation of "A Variational U-Net for Conditional Appearance and Shape Generation"
+
+* run tests with
+```bash
+py.test --verbose --pyargs src
+```
+
+
+
+
+
+
 # A Variational U-Net for Conditional Appearance and Shape Generation
 
 This repository contains training code for the CVPR 2018 spotlight
