@@ -1,0 +1,76 @@
+datasets: 
+  train: src.datasets.deepfashion.DeepfashionTrain
+  validation: src.datasets.deepfashion.DeepfashionVal
+model: src.experiment.Model
+iterator: src.experiment.Iterator
+
+batch_size: 8
+spatial_size: 256
+
+lr: 1.0e-4
+num_steps: 50001
+lr_decay_begin: 50000
+lr_decay_end: 50001
+log_freq: 250
+ckpt_freq: 25000
+
+dropout_prob: 0.0
+
+
+dataset_params:
+  data_dir: "datasets/deepfashion/"
+  index_p: "datasets/deepfashion/index.p"
+  img_shape: [256, 256]
+  box_factor: 2
+
+
+vunet_params:
+  bottleneck_factor: 2
+  box_factor: 2
+  stages: 3
+  latent_stages: 2
+  conv_layer_type: l2
+  start_channels: 64
+  max_channels: 128
+  x_channels: 24
+
+
+kl_lambda: 1.0e-3
+r_lambda: 1275 # 255 * 5, because in original vunet implementaiton reconstruction loss is applied on images in range [0, 255] and multiplied by 5
+
+
+perceptual_loss_params:
+  # feature_layers: [
+  #   "input_1",
+  #   "block1_conv2",
+  #   "block2_conv2",
+  #   "block3_conv2",
+  #   "block4_conv2",
+  #   "block5_conv2"
+  #   ]
+  feature_weights: [
+    1.0, # weight on inputs, thus L1
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+    ]
+  gram_weights: [
+    0.0, # weight on inputs features
+    0.01,
+    0.01,
+    0.01,
+    0.01,
+    0.01
+    ]
+  use_gram: False
+
+integrations:
+  tensorboard:
+    active: True
+    handlers:
+    - scalars
+    - images
+  wandb:
+    active: False
