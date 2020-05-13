@@ -1,14 +1,14 @@
-import cv2
-import numpy as np
-import torch
-from torchvision.utils import make_grid
 import os.path as osp
 import random
 from collections import namedtuple
+from typing import *
+
+import cv2
+import numpy as np
+import torch
 from skimage import io
 from skimage.draw import circle, line, line_aa
-import numpy as np
-import cv2
+from torchvision.utils import make_grid
 
 # works for coco at least
 VUNET_JOINT_ORDER = [
@@ -277,6 +277,103 @@ class VUNetStickman:
 
         M = cv2.getPerspectiveTransform(part_src, part_dst)
         return M
+
+
+    @staticmethod
+    def visualize_body_parts(image: np.ndarray, joints: np.ndarray, jo: List[str], bparts: List[List[str]], colors: np.ndarray, aspect_ratio=1.0):
+        from matplotlib import pyplot as plt
+
+        for color, bpart in zip(colors, bparts):
+            bpart_indices = [jo.index(b) for b in bpart]
+            part_src = np.float32(joints[bpart_indices])
+
+            # fall backs
+            if not valid_joints(part_src):
+                if bpart[0] == "lhip" and bpart[1] == "lknee":
+                    bpart = ["lhip"]
+                    bpart_indices = [jo.index(b) for b in bpart]
+                    part_src = np.float32(joints[bpart_indices])
+                elif bpart[0] == "rhip" and bpart[1] == "rknee":
+                    bpart = ["rhip"]
+                    bpart_indices = [jo.index(b) for b in bpart]
+                    part_src = np.float32(joints[bpart_indices])
+                elif (
+                    bpart[0] == "lshoulder"
+                    and bpart[1] == "rshoulder"
+                    and bpart[2] == "cnose"
+                ):
+                    bpart = ["lshoulder", "rshoulder", "rshoulder"]
+                    bpart_indices = [jo.index(b) for b in bpart]
+                    part_src = np.float32(joints[bpart_indices])
+
+            if not valid_joints(part_src):
+                return None
+
+            if part_src.shape[0] == 1:
+                # leg fallback
+                a = part_src[0]
+                b = np.float32([a[0], o_h - 1])
+                part_src = np.float32([a, b])
+
+            if part_src.shape[0] == 4:
+                pass
+            elif part_src.shape[0] == 3:
+                # lshoulder, rshoulder, cnose
+                if bpart == ["lshoulder", "rshoulder", "rshoulder"]:
+                    segment = part_src[1] - part_src[0]
+                    normal = np.array([-segment[1], segment[0]])
+                    if normal[1] > 0.0:
+                        normal = -normal
+
+                    a = part_src[0] + normal
+                    b = part_src[0]
+                    c = part_src[1]
+                    d = part_src[1] + normal
+                    part_src = np.float32([a, b, c, d])
+                else:
+                    assert bpart == ["lshoulder", "rshoulder", "cnose"]
+                    neck = 0.5 * (part_src[0] + part_src[1])
+                    neck_to_nose = part_src[2] - neck
+                    part_src = np.float32([neck + 2 * neck_to_nose, neck])
+
+                    # segment box
+                    segment = part_src[1] - part_src[0]
+                    normal = np.array([-segment[1], segment[0]])
+                    alpha = 1.0 / 2.0
+                    a = part_src[0] + alpha * normal
+                    b = part_src[0] - alpha * normal
+                    c = part_src[1] - alpha * normal
+                    d = part_src[1] + alpha * normal
+                    # part_src = np.float32([a,b,c,d])
+                    part_src = np.float32([b, c, d, a])
+            else:
+                assert part_src.shape[0] == 2
+
+                segment = part_src[1] - part_src[0]
+                normal = np.array([-segment[1], segment[0]])
+                alpha = aspect_ratio / 2.0
+                a = part_src[0] + alpha * normal
+                b = part_src[0] - alpha * normal
+                c = part_src[1] - alpha * normal
+                d = part_src[1] + alpha * normal
+                part_src = np.float32([a, b, c, d])
+
+            # eventually, part_src is always shaped [4, 2]
+            # part_src = np.concatenate([part_src, part_src], axis=0)[:5,:]
+            image = draw_part_box(image, part_src, color, 2)
+        return image
+
+
+def draw_part_box(image: np.ndarray, corner_points: np.ndarray, color: np.ndarray, thickness: int) -> np.ndarray:
+    """draw part box given by 4 corner points. """
+    start_points = corner_points
+    end_points = np.roll(start_points, 1, axis=0)
+    for pt1, pt2 in zip(start_points, end_points):
+        pt1_ = tuple(pt1.astype(np.int32).tolist())
+        pt2_ = tuple(pt2.astype(np.int32).tolist())
+        color_ = tuple(color.tolist())
+        image = cv2.line(image, pt1_, pt2_, color_, thickness)
+    return image
 
 
 def n_parameters(model):
