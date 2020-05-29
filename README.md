@@ -27,7 +27,7 @@ edflow -b configs/xxx.yaml -t -p xxx
 
 # Pretrained Checkpoints
 
-* the authors released original checkpoints [on their page](https://github.com/pesser/edflow).
+* the authors released original checkpoints [on their page](https://github.com/CompVis/vunet).
 * Checkpoints in Pytorch are coming soon.
 
 
