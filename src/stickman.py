@@ -326,9 +326,15 @@ class VUNetStickman:
         M = cv2.getPerspectiveTransform(part_src, part_dst)
         return M
 
-
     @staticmethod
-    def visualize_body_parts(image: np.ndarray, joints: np.ndarray, jo: List[str], bparts: List[List[str]], colors: np.ndarray, aspect_ratio=1.0):
+    def visualize_body_parts(
+        image: np.ndarray,
+        joints: np.ndarray,
+        jo: List[str],
+        bparts: List[List[str]],
+        colors: np.ndarray,
+        aspect_ratio=1.0,
+    ):
         from matplotlib import pyplot as plt
 
         for color, bpart in zip(colors, bparts):
@@ -412,7 +418,9 @@ class VUNetStickman:
         return image
 
 
-def draw_part_box(image: np.ndarray, corner_points: np.ndarray, color: np.ndarray, thickness: int) -> np.ndarray:
+def draw_part_box(
+    image: np.ndarray, corner_points: np.ndarray, color: np.ndarray, thickness: int
+) -> np.ndarray:
     """draw part box given by 4 corner points. """
     start_points = corner_points
     end_points = np.roll(start_points, 1, axis=0)
@@ -479,7 +487,9 @@ def get_bounding_boxes(kps, img_size, box_size):
     kps_resized = kps * np.array(img_size).reshape((-1, 2))
     half_width = box_size // 2
     offset = np.array([-half_width, -half_width, half_width, half_width])
-    box_coordinates = np.concatenate([kps_resized, kps_resized], -1) + offset.reshape((-1, 4))
+    box_coordinates = np.concatenate([kps_resized, kps_resized], -1) + offset.reshape(
+        (-1, 4)
+    )
     box_list = np.split(box_coordinates, box_coordinates.shape[0], axis=0)
     box_list = [np.squeeze(b) for b in box_list]
     return box_list
