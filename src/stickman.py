@@ -331,10 +331,10 @@ def get_bounding_boxes(kps, img_size, box_size):
 
         Note that bounding box coordinates are not clipped to the image size, yet
     """
-    kps *= np.array(img_size).reshape((-1, 2))
+    kps_resized = kps * np.array(img_size).reshape((-1, 2))
     half_width = box_size // 2
     offset = np.array([-half_width, -half_width, half_width, half_width])
-    box_coordinates = np.concatenate([kps, kps], -1) + offset.reshape((-1, 4))
+    box_coordinates = np.concatenate([kps_resized, kps_resized], -1) + offset.reshape((-1, 4))
     box_list = np.split(box_coordinates, box_coordinates.shape[0], axis=0)
     box_list = [np.squeeze(b) for b in box_list]
     return box_list
