@@ -93,6 +93,8 @@ class VUnetDeepfashionDataset(Dataset):
             "image_stickman": image_stickman,
             "part_image": part_img,
             "part_stickman": part_stickman,
+            "keypoints": keypoints,
+            "joint_order" : self.joint_order
         }
         return example
 
