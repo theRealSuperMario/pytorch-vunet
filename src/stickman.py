@@ -408,7 +408,7 @@ class VUNetStickman:
 
             # eventually, part_src is always shaped [4, 2]
             # part_src = np.concatenate([part_src, part_src], axis=0)[:5,:]
-            image = draw_part_box(image, part_src, color, 2)
+            image = draw_part_box(image, part_src, color, image.shape[0] // 40)
         return image
 
 
