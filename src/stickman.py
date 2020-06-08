@@ -11,7 +11,29 @@ from skimage.draw import circle, line, line_aa
 from torchvision.utils import make_grid
 
 # works for coco at least
-VUNET_JOINT_ORDER = [
+VUNET_JOINT_ORDER_DEEPFASHION = [
+    "cnose",
+    "cneck",
+    "rshoulder",
+    "relbow",
+    "rwrist",
+    "lshoulder",
+    "lelbow",
+    "lwrist",
+    "rhip",
+    "rknee",
+    "rankle",
+    "lhip",
+    "lknee",
+    "lankle",
+    "reye",
+    "leye",
+    "rear",
+    "lear",
+]
+
+
+VUNET_JOINT_ORDER_COCO = [
     "rankle",
     "rknee",
     "rhip",
@@ -44,7 +66,33 @@ class VUNetStickman:
     """Stickman image generator according to https://github.com/CompVis/vunet/blob/master/batches.py"""
 
     @staticmethod
-    def get_example_valid_keypoints():
+    def get_example_valid_keypoints_deepfashion():
+        example_keypoints = np.array(
+            [
+                [0.46875, 0.0],
+                [0.484375, 0.109375],
+                [0.39453125, 0.1328125],
+                [0.33203125, 0.28515625],
+                [0.44140625, 0.3515625],
+                [0.5703125, 0.0859375],
+                [0.59375, 0.21484375],
+                [0.6171875, 0.27734375],
+                [0.48046875, 0.44140625],
+                [0.45703125, 0.6796875],
+                [0.46484375, 0.89453125],
+                [0.58984375, 0.43359375],
+                [0.6015625, 0.6484375],
+                [0.5234375, 0.8515625],
+                [0.45703125, 0.0],
+                [0.484375, 0.0],
+                [0.4375, 0.0],
+                [0.5234375, 0.0],
+            ]
+        )
+        return example_keypoints
+
+    @staticmethod
+    def get_example_valid_keypoints_coco():
         example_keypoints = np.array(
             [
                 [0.48106802, 0.8998802],

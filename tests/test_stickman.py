@@ -13,11 +13,11 @@ class Test_example_joint_models:
     def test_joint_model(self):
         # kps = stickman.EXAMPLE_JOINT_MODELS["JointModel_15"]
         # joint_img = stickman.make_joint_img((128, 128), kps, stickman.JointModel_15)
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         joint_img = stickman.VUNetStickman.make_joint_img(
             (128, 128),
-            stickman.VUNET_JOINT_ORDER,
-            stickman.VUNetStickman.get_example_valid_keypoints() * 128,
+            stickman.VUNET_JOINT_ORDER_DEEPFASHION,
+            stickman.VUNetStickman.get_example_valid_keypoints_deepfashion() * 128,
         )
 
         plt.imshow(joint_img)
@@ -25,12 +25,12 @@ class Test_example_joint_models:
 
     @pytest.mark.mpl_image_compare
     def test_get_bounding_box(self):
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         box = stickman.get_bounding_boxes(kps, (128, 128), 32)
         joint_img = stickman.VUNetStickman.make_joint_img(
             (128, 128),
-            stickman.VUNET_JOINT_ORDER,
-            stickman.VUNetStickman.get_example_valid_keypoints() * 128,
+            stickman.VUNET_JOINT_ORDER_DEEPFASHION,
+            stickman.VUNetStickman.get_example_valid_keypoints_deepfashion() * 128,
         )
 
         box_image = plotting.overlay_boxes_without_labels(joint_img, box)
@@ -43,7 +43,7 @@ class Test_example_joint_models:
         box = stickman.get_bounding_boxes(kps, (128, 128), 32)
         joint_img = stickman.VUNetStickman.make_joint_img(
             (128, 128),
-            stickman.VUNET_JOINT_ORDER,
+            stickman.VUNET_JOINT_ORDER_DEEPFASHION,
             stickman.VUNetStickman.get_example_invalid_keypoints() * 128,
         )
 
@@ -54,20 +54,22 @@ class Test_example_joint_models:
     @pytest.mark.mpl_image_compare
     def test_filter_parts(self):
         fig, ax = plt.subplots(1, 2, figsize=(10, 5))
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         box = stickman.get_bounding_boxes(kps, (128, 128), 32)
         joint_img = stickman.VUNetStickman.make_joint_img(
             (128, 128),
-            stickman.VUNET_JOINT_ORDER,
-            stickman.VUNetStickman.get_example_valid_keypoints() * 128,
+            stickman.VUNET_JOINT_ORDER_DEEPFASHION,
+            stickman.VUNetStickman.get_example_valid_keypoints_deepfashion() * 128,
         )
 
         box_image = plotting.overlay_boxes_without_labels(joint_img, box)
         ax[0].imshow(box_image)
 
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         jo = ["lankle", "rankle"]
-        new_kps = stickman.filter_keypoints(kps, stickman.VUNET_JOINT_ORDER, jo)
+        new_kps = stickman.filter_keypoints(
+            kps, stickman.VUNET_JOINT_ORDER_DEEPFASHION, jo
+        )
         box = stickman.get_bounding_boxes(new_kps, (128, 128), 32)
         # joint_img = stickman.VUNetStickman.make_joint_img((128, 128), jo, new_kps * 128)
 
@@ -79,11 +81,11 @@ class Test_example_joint_models:
 
     @pytest.mark.mpl_image_compare
     def test_crop(self):
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         joint_img = stickman.VUNetStickman.make_joint_img(
-            (128, 128), stickman.VUNET_JOINT_ORDER, kps * 128,
+            (128, 128), stickman.VUNET_JOINT_ORDER_DEEPFASHION, kps * 128,
         )
-        joint_order = stickman.VUNET_JOINT_ORDER
+        joint_order = stickman.VUNET_JOINT_ORDER_DEEPFASHION
 
         crops = [
             stickman.VUNetStickman.normalize(
@@ -104,11 +106,11 @@ class Test_example_joint_models:
 
     @pytest.mark.mpl_image_compare
     def test_crop_affine(self):
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         joint_img = stickman.VUNetStickman.make_joint_img(
-            (128, 128), stickman.VUNET_JOINT_ORDER, kps * 128,
+            (128, 128), stickman.VUNET_JOINT_ORDER_DEEPFASHION, kps * 128,
         )
-        joint_order = stickman.VUNET_JOINT_ORDER
+        joint_order = stickman.VUNET_JOINT_ORDER_DEEPFASHION
 
         crops = [
             stickman.VUNetStickman.normalize_affine(
@@ -129,11 +131,11 @@ class Test_example_joint_models:
 
     @pytest.mark.mpl_image_compare
     def test_crop_scale(self):
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         joint_img = stickman.VUNetStickman.make_joint_img(
-            (128, 128), stickman.VUNET_JOINT_ORDER, kps * 128,
+            (128, 128), stickman.VUNET_JOINT_ORDER_DEEPFASHION, kps * 128,
         )
-        joint_order = stickman.VUNET_JOINT_ORDER
+        joint_order = stickman.VUNET_JOINT_ORDER_DEEPFASHION
 
         crops = [
             stickman.VUNetStickman.normalize_scale(
@@ -154,11 +156,11 @@ class Test_example_joint_models:
 
     @pytest.mark.mpl_image_compare
     def test_visualize_body_part(self):
-        kps = stickman.VUNetStickman.get_example_valid_keypoints()
+        kps = stickman.VUNetStickman.get_example_valid_keypoints_deepfashion()
         joint_img = stickman.VUNetStickman.make_joint_img(
-            (128, 128), stickman.VUNET_JOINT_ORDER, kps * 128,
+            (128, 128), stickman.VUNET_JOINT_ORDER_DEEPFASHION, kps * 128,
         )
-        joint_order = stickman.VUNET_JOINT_ORDER
+        joint_order = stickman.VUNET_JOINT_ORDER_DEEPFASHION
         bparts = stickman.VUNetStickman.VUNET_CROP_PARTS
         colors = plt.cm.hsv(np.linspace(0, 1, len(bparts)), bytes=True)[
             :, :3
