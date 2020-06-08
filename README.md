@@ -41,7 +41,7 @@ edflow -b configs/xxx.yaml -t -p xxx
 
 ## Inplane Normalization
 
-* When using the inplane normalization, it becomes quite unecessary to regularize the KL. Furthermore, without the Inplane Normalization, the method is quite hard to get to work on humans this is also in the paper
+* When using the inplane normalization, it becomes quite unecessary to regularize the KL. Furthermore, without the Inplane Normalization, the method is quite hard to get to work on humans this. They state this in the paper:
 
 > In some difficult cases, [...] it is difficult to perform
 appearance transfer from one object to another with no part
