@@ -7,3 +7,7 @@ edflow==0.4
 tensorboardX==2.0
 torch==1.5.1
 torchvision==0.6.0
+pytest
+pytest-cov
+coverage
+pytest-mpl
