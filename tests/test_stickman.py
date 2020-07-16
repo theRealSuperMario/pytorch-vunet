@@ -170,4 +170,4 @@ class Test_example_joint_models:
         )
         plt.imshow(visualized_image)
         plt.savefig("test_visualize_bparts.png")
-        return fig
+        return plt.gcf()
