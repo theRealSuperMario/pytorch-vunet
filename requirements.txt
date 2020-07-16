@@ -2,8 +2,8 @@ opencv-python==3.4.2.17
 scikit-image==0.17.2
 scikit-learn==0.23.1
 streamlit==0.60.0
--e git+git@gitlab.com:theRealSuperMario/supermariopy.git@1a31f834efeddd4a1bd2b1d6d268c3c3cbf1ae1d#egg=supermariopy
-edflo==0.4
+git+git://github.com/therealsupermario/supermariopy@dev#egg=supermariopy
+edflow==0.4
 tensorboardX==2.0
 torch==1.5.1
 torchvision==0.6.0
